@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-
 namespace rpg.Services.CharacterService
 {
     public class CharacterService : ICharacterService
@@ -28,6 +27,32 @@ namespace rpg.Services.CharacterService
             return serviceReponse;
         }
 
+        public async Task<ServiceResponse<List<GetCharacterDto>>> DeleteCharacter(int id)
+        {
+            var serviceReponse = new ServiceResponse<List<GetCharacterDto>>();
+
+            try
+            {
+
+                var character = characters.FirstOrDefault(c => c.Id == id);
+
+                if (character is null)
+                {
+                    throw new Exception($"Character with ID '{id}'");
+                }
+
+                characters.Remove(character);
+
+                serviceReponse.Data = characters.Select(c => _mapper.Map<GetCharacterDto>(c)).ToList();
+            }
+            catch (Exception e)
+            {
+                serviceReponse.Success = false;
+                serviceReponse.Message = e.Message;
+            }
+
+            return serviceReponse;
+        }
 
         public async Task<ServiceResponse<List<GetCharacterDto>>> GetAllCharacters()
         {
@@ -43,6 +68,33 @@ namespace rpg.Services.CharacterService
             var serviceReponse = new ServiceResponse<GetCharacterDto>();
 
             serviceReponse.Data = _mapper.Map<GetCharacterDto>(character);
+            return serviceReponse;
+        }
+
+        public async Task<ServiceResponse<GetCharacterDto>> UpdateCharacter(UpdateCharacterDto updatedCharacter)
+        {
+            var serviceReponse = new ServiceResponse<GetCharacterDto>();
+
+            try
+            {
+
+                var character = characters.FirstOrDefault(c => c.Id == updatedCharacter.Id);
+
+                if (character is null)
+                {
+                    throw new Exception($"Character with ID '{updatedCharacter.Id}'");
+                }
+
+                _mapper.Map(updatedCharacter, character);
+
+                serviceReponse.Data = _mapper.Map<GetCharacterDto>(character);
+            }
+            catch (Exception e)
+            {
+                serviceReponse.Success = false;
+                serviceReponse.Message = e.Message;
+            }
+
             return serviceReponse;
         }
     }
